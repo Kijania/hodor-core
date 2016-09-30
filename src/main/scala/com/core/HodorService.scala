@@ -1,31 +1,34 @@
 package com.core
 
-import akka.actor.Actor
-import spray.routing._
-import spray.http._
-import MediaTypes._
-
-class HodorServiceActor extends Actor with HodorService {
-
-  def actorRefFactory = context
-
-  override def receive: Receive = runRoute(route)
-}
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
+import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
+import akka.http.scaladsl.server.Directives._
+import com.core_api.{Event, ServiceJsonProtocol}
 
 
-trait HodorService extends HttpService {
+trait HodorService extends ServiceJsonProtocol {
+
+  implicit val system: ActorSystem = ActorSystem("hodor-server")
+  implicit val materializer: ActorMaterializer = ActorMaterializer()
+
+  import com.github.nscala_time.time.Imports._
+
+  var list = List[Event]()
 
   val route =
-    path("") {
-      get {
-        respondWithMediaType(`text/html`) {
+    path("events") {
+      post {
+        entity(as[Event]) { event =>
           complete {
-            <html>
-              <body>
-                <h1>Say hello to <i>spray-routing</i> on <i>spray-can</i>!</h1>
-              </body>
-            </html>
+            list = event :: list
+            s"Get event ${event.name}: ${event.date}"
           }
+        }
+      } ~
+      get {
+        complete {
+          list
         }
       }
     }
