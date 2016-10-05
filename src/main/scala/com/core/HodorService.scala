@@ -4,15 +4,13 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import akka.http.scaladsl.server.Directives._
-import com.core_api.{Event, ServiceJsonProtocol}
+import com.core_api.{Event, EventJsonProtocol}
 
 
-trait HodorService extends ServiceJsonProtocol {
+trait HodorService extends EventJsonProtocol {
 
-  implicit val system: ActorSystem = ActorSystem("hodor-server")
-  implicit val materializer: ActorMaterializer = ActorMaterializer()
-
-  import com.github.nscala_time.time.Imports._
+  implicit val system: ActorSystem
+  implicit val materializer: ActorMaterializer
 
   var list = List[Event]()
 
