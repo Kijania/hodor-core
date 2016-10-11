@@ -1,8 +1,8 @@
-package com.core_api
+package com.core_api.dto
 
-import spray.json.{DefaultJsonProtocol, DeserializationException, JsString, JsValue, RootJsonFormat}
 import com.github.nscala_time.time.Imports._
 import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat}
+import spray.json.{DefaultJsonProtocol, DeserializationException, JsString, JsValue, RootJsonFormat}
 
 
 trait DateTimeJsonProtocol extends DefaultJsonProtocol {
@@ -11,7 +11,7 @@ trait DateTimeJsonProtocol extends DefaultJsonProtocol {
 
   def parse(s: String): DateTime = parserISO.parseDateTime(s)
 
-  implicit object DateJsonFormat extends RootJsonFormat[DateTime] {
+  implicit object DateTimeJsonFormat extends RootJsonFormat[DateTime] {
 
     override def write(obj: DateTime) = JsString(parserISO.print(obj))
 

@@ -2,7 +2,7 @@
 //
 //import akka.actor.Actor
 //import com.core.controllers.EventCtrl._
-//import com.core_api.Event
+//import com.core_api.dto.Event
 //import com.github.nscala_time.time.Imports._
 //
 //class EventCtrl extends Actor {
