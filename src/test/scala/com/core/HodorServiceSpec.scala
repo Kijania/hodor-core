@@ -93,6 +93,33 @@ class HodorServiceSpec extends WordSpec with Matchers with ScalatestRouteTest wi
 
     }
 
-//    "update an event "
+    "delete and event" in {
+
+      val eventString =
+        s"""
+           |{
+           |  "name": "Nicolas Nameday",
+           |  "date": "2016-12-06T17:31:56+01:00"
+           |}
+        """.stripMargin
+
+      val eventId = "nicolas"
+      val httpEntity = HttpEntity(MediaTypes.`application/json`, eventString)
+      val event = EventDto(eventId, Event("Nicolas Nameday", parse("2016-12-06T17:31:56+01:00")))
+
+      Put(s"/events/$eventId", httpEntity) ~> route ~> check {
+        status shouldBe OK
+        responseAs[EventDto] shouldEqual event
+      }
+      Delete(s"/events/$eventId") ~> route ~> check {
+        status shouldBe NoContent
+      }
+      Delete(s"/events/$eventId") ~> route ~> check {
+        status shouldBe NotFound
+      }
+      Get(s"/events/$eventId") ~> route ~> check {
+        status shouldBe NotFound
+      }
+    }
   }
 }

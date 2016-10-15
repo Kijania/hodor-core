@@ -47,6 +47,15 @@ trait HodorService extends EventJsonProtocol {
           }
           complete(eventDto)
         }
+      } ~
+      delete {
+        list.find(_.id == eventId) match {
+          case Some(_) =>
+            list = list.filterNot(_.id == eventId)
+            complete(NoContent)
+          case None =>
+            complete(NotFound)
+        }
       }
     }
 }
