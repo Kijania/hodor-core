@@ -37,10 +37,13 @@ trait HodorService extends EventJsonProtocol {
       } ~
       put {
         entity(as[Event]) { event =>
-          val eventDto = list.find(_.id == eventId).getOrElse {
-            val eventDto = EventDto(eventId, event)
-            list = eventDto :: list
-            eventDto
+          val eventDto = EventDto(eventId, event)
+          list.find(_.id == eventId) match {
+            case Some(oldEvent) =>
+              val index = list.indexOf(oldEvent)
+              list = list.updated[EventDto, List[EventDto]](index, eventDto)
+            case None =>
+              list = eventDto :: list
           }
           complete(eventDto)
         }

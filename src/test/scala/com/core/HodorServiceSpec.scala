@@ -6,7 +6,6 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import com.core_api.dto.{Event, EventDto}
-import spray.json.{JsObject, JsValue}
 
 class HodorServiceSpec extends WordSpec with Matchers with ScalatestRouteTest with HodorService {
 
@@ -19,7 +18,7 @@ class HodorServiceSpec extends WordSpec with Matchers with ScalatestRouteTest wi
       }
     }
 
-    "accept a valid event and show it" in {
+    "post a valid event and show it" in {
 
       val eventString =
         s"""
@@ -41,13 +40,13 @@ class HodorServiceSpec extends WordSpec with Matchers with ScalatestRouteTest wi
       }
     }
 
-    "show specific event" in {
+    "put an event with defined id, get it and update it" in {
 
       val eventString =
         s"""
            |{
            |  "name": "Women's Day",
-           |  "date": "2016-12-06T17:31:56+01:00",
+           |  "date": "2016-03-08T17:31:56+01:00",
            |  "text": "Do not forget to bring flowers!",
            |  "mail": "some@mail.com"
            |}
@@ -58,18 +57,42 @@ class HodorServiceSpec extends WordSpec with Matchers with ScalatestRouteTest wi
       val eventId = "event1"
       val event = EventDto(eventId,
         Event("Women's Day",
-          parse("2016-12-06T17:31:56+01:00"),
+          parse("2016-03-08T17:31:56+01:00"),
           Some("Do not forget to bring flowers!"),
           Some("some@mail.com")
         ))
 
+      val updatedEventString =
+        s"""
+           |{
+           |  "name": "Men's Day at Romania",
+           |  "date": "2016-03-09T17:31:56+01:00"
+           |}
+         """.stripMargin
+      val httpUpdatedEntity = HttpEntity(MediaTypes.`application/json`, updatedEventString)
+
+      val updatedEvent = EventDto(eventId,
+        Event("Men's Day at Romania",parse("2016-03-09T17:31:56+01:00")))
+
       Put(s"/events/$eventId", httpEntity) ~> route ~> check {
         status shouldBe OK
+        responseAs[EventDto] shouldEqual event
       }
       Get(s"/events/$eventId") ~> route ~> check {
         status shouldBe OK
         responseAs[EventDto] shouldEqual event
       }
+      Put(s"/events/$eventId", httpUpdatedEntity) ~> route ~> check {
+        status shouldBe OK
+        responseAs[EventDto] shouldEqual updatedEvent
+      }
+      Get(s"/events/$eventId") ~> route ~> check {
+        status shouldBe OK
+        responseAs[EventDto] shouldEqual updatedEvent
+      }
+
     }
+
+//    "update an event "
   }
 }
