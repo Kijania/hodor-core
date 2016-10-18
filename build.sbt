@@ -1,3 +1,5 @@
+enablePlugins(JavaAppPackaging)
+
 name := "hodor-core"
 
 version := "1.0"
