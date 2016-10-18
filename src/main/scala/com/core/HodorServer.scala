@@ -3,6 +3,7 @@ package com.core
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
+import com.typesafe.config.ConfigFactory
 
 class HodorServer(implicit val system: ActorSystem,
   implicit  val materializer: ActorMaterializer) extends HodorService {
@@ -20,6 +21,7 @@ object HodorServer extends App {
     implicit val materializer = ActorMaterializer()
 
     val server = new HodorServer()
-    server.startServer("localhost", 8080)
+    val config = ConfigFactory.load()
+    server.startServer(config.getString("http.host"), config.getInt("http.port"))
   }
 }

@@ -1,1 +1,1 @@
-web: target/universal/stage/bin/hodor-core 
+web: target/universal/stage/bin/hodor-core -Dhttp.port=$PORT
