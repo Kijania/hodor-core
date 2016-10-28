@@ -11,6 +11,10 @@ val sprayJsonVersion = "1.3.2"
 val mockitoVersion = "1.9.5"
 val scalatestVersion = "2.2.4"
 val nscalaTimeVersion = "2.14.0"
+val logbackVersion = "1.1.7"
+val scalaLoggingVersion = "3.5.0"
+val slickVersion = "3.1.1"
+val postgresqlVersion = "9.4.1211"
 
 resolvers ++= Seq(
   "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",
@@ -29,5 +33,9 @@ libraryDependencies ++= Seq(
   "io.spray" %% "spray-json" % sprayJsonVersion,
   "org.mockito" % "mockito-core" % mockitoVersion,
   "org.scalatest" %% "scalatest" % scalatestVersion,
-  "com.github.nscala-time" %% "nscala-time" % nscalaTimeVersion
+  "com.github.nscala-time" %% "nscala-time" % nscalaTimeVersion,
+  "ch.qos.logback" %  "logback-classic" % logbackVersion,
+  "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
+  "com.typesafe.slick" %% "slick" % slickVersion,
+  "org.postgresql" % "postgresql" % postgresqlVersion
 )
