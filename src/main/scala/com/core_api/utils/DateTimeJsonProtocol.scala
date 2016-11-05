@@ -1,9 +1,9 @@
-package com.core_api.dto
+package com.core_api.utils
 
+import com.core_api.utils.DateTimeParser._
 import com.github.nscala_time.time.Imports._
 import spray.json
 import spray.json.{DeserializationException, JsString, JsValue, RootJsonFormat}
-import com.core_api.utils.DateTimeParser._
 
 object DateTimeJsonProtocol extends json.DefaultJsonProtocol {
   implicit object DateTimeJsonFormat extends RootJsonFormat[DateTime] {

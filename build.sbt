@@ -17,6 +17,7 @@ val logbackVersion = "1.1.7"
 val scalaLoggingVersion = "3.5.0"
 val slickVersion = "3.1.1"
 val postgresqlVersion = "9.4.1211"
+val slickJodaMapperVersion = "2.2.0"
 
 val slf4jApiVersion = "1.7.20"
 val typesafeConfigVersion = "1.3.0"
@@ -43,7 +44,8 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" %  "logback-classic" % logbackVersion,
   "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
   "com.typesafe.slick" %% "slick" % slickVersion,
-  "org.postgresql" % "postgresql" % postgresqlVersion
+  "org.postgresql" % "postgresql" % postgresqlVersion,
+  "com.github.tototoshi" %% "slick-joda-mapper" % slickJodaMapperVersion
 )
 
 conflictManager := ConflictManager.strict

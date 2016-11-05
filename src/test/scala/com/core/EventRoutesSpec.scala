@@ -6,12 +6,14 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import com.BaseSpec
 import com.core_api.dto.{Event, EventDto}
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
+import akka.testkit.TestProbe
+import com.core.routes.EventRoutes
 import com.core_api.dto.EventJsonProtocol._
 import com.core_api.utils.DateTimeParser._
 
-class HodorRoutesSpec extends BaseSpec with ScalatestRouteTest {
+class EventRoutesSpec extends BaseSpec with ScalatestRouteTest {
 
-  "The HodorRoutes" should {
+  "The EventRoutes" should {
 
     "show an empty list of events" in new Fixture {
 
@@ -52,7 +54,7 @@ class HodorRoutesSpec extends BaseSpec with ScalatestRouteTest {
       }
     }
 
-    "delete and event" in new Fixture {
+    "delete an event" in new Fixture {
 
       Put(s"/events/$eventId", httpEntity) ~> routes.route ~> check {
         status shouldBe OK
@@ -72,8 +74,8 @@ class HodorRoutesSpec extends BaseSpec with ScalatestRouteTest {
 
   // TODO manage closing resources in Fixture, to get rid of memory leak
   class Fixture {
-    val service = mock[HodorService]
-    val routes = HodorRoutes(service)
+    val eventPersistence = TestProbe()
+    val routes = EventRoutes(eventPersistence.ref)
 
     val eventString =
       s"""
@@ -87,7 +89,7 @@ class HodorRoutesSpec extends BaseSpec with ScalatestRouteTest {
     val event = Event("Nicolas Nameday", parseDateTime("2016-12-06T17:31:56+01:00"))
 
     val eventId = "event1"
-    val eventDto = EventDto(eventId, event)
+    val eventDto = event.dto(eventId)
 
     val updatedEventString =
       s"""
@@ -101,10 +103,10 @@ class HodorRoutesSpec extends BaseSpec with ScalatestRouteTest {
 
     val httpUpdatedEntity = HttpEntity(MediaTypes.`application/json`, updatedEventString)
     val updatedEventDto = EventDto(eventId,
-      Event("Women's Day",
-        parseDateTime("2016-03-08T17:31:56+01:00"),
-        Some("Do not forget to bring flowers!"),
-        Some("some@mail.com")
-      ))
+      "Women's Day",
+      parseDateTime("2016-03-08T17:31:56+01:00"),
+      Some("Do not forget to bring flowers!"),
+      Some("some@mail.com")
+    )
   }
 }

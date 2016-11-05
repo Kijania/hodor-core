@@ -7,9 +7,4 @@ object HodorSettings {
 
   val host = config.getString("http.host")
   val port = config.getInt("http.port")
-
-  val dbHost = config.getString("postgresql.host")
-  val dbName = config.getString("postgresql.name")
-  val dbUser = config.getString("postgresql.user")
-  val dbPassword = config.getString("postgresql.password")
 }

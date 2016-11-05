@@ -3,26 +3,24 @@ package com.core
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
+import com.core.persistence.EventPersistenceActor$
+import com.core.routes.EventRoutes
 import com.core.utils.HodorSettings
-import com.core.utils.postgresql.PostgresqlDatabaseConnection
 import com.typesafe.scalalogging.LazyLogging
 // TODO replace with defined context
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.util.{Failure, Success}
 
-trait HodorCoreServer extends LazyLogging {
+trait CoreServer extends LazyLogging {
 
-  implicit val system = ActorSystem("hodor-server")
+  implicit val system = ActorSystem("core-server")
   implicit val materializer = ActorMaterializer()
 
-  // TODO encrypt admin user and password, introduce authentication
-  implicit val db = new PostgresqlDatabaseConnection().db()
-
   def run() {
-    val service = new HodorService
+    val eventCtrl = system.actorOf(EventPersistenceActor.props())
 
-    val routes = new HodorRoutes(service)
+    val routes = new EventRoutes(eventCtrl)
 
     val binding = Http().bindAndHandle(routes.route, HodorSettings.host, HodorSettings.port)
 
@@ -33,6 +31,6 @@ trait HodorCoreServer extends LazyLogging {
   }
 }
 
-object HodorCoreServer extends App with HodorCoreServer {
+object Main extends App with CoreServer {
   run()
 }
