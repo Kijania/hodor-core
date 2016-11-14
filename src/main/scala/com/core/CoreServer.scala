@@ -3,7 +3,7 @@ package com.core
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
-import com.core.persistence.EventPersistenceActor$
+import com.core.persistence.EventPersistenceActor
 import com.core.routes.EventRoutes
 import com.core.utils.HodorSettings
 import com.typesafe.scalalogging.LazyLogging

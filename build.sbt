@@ -40,12 +40,16 @@ libraryDependencies ++= Seq(
   "io.spray" %% "spray-json" % sprayJsonVersion,
   "org.mockito" % "mockito-core" % mockitoVersion,
   "org.scalatest" %% "scalatest" % scalatestVersion,
+  // joda time wrapper for scala
   "com.github.nscala-time" %% "nscala-time" % nscalaTimeVersion,
   "ch.qos.logback" %  "logback-classic" % logbackVersion,
   "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
-  "com.typesafe.slick" %% "slick" % slickVersion,
   "org.postgresql" % "postgresql" % postgresqlVersion,
-  "com.github.tototoshi" %% "slick-joda-mapper" % slickJodaMapperVersion
+  "com.typesafe.slick" %% "slick" % slickVersion,
+  // slick joda mapper
+  "com.github.tototoshi" %% "slick-joda-mapper" % slickJodaMapperVersion,
+  // jdbc connection pool, successor of Bone-CP
+  "com.typesafe.slick" %% "slick-hikaricp" % slickVersion
 )
 
 conflictManager := ConflictManager.strict

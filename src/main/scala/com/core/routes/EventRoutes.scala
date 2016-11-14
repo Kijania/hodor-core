@@ -11,11 +11,13 @@ import akka.util.Timeout
 import com.core.persistence.EventPersistenceActor.{AddEvent, GetAllEvents}
 import com.core_api.dto.EventJsonProtocol._
 import com.core_api.dto.{Event, EventDto}
+// TODO replace with defined context
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.util.{Failure, Success}
 import scala.concurrent.duration._
 
-case class EventRoutes(eventPersistence: ActorRef) {
+case class EventRoutes(eventPersistenceActor: ActorRef) {
 
   implicit val timeout: Timeout = 3 seconds
   var list = List[EventDto]()
@@ -27,44 +29,47 @@ case class EventRoutes(eventPersistence: ActorRef) {
         entity(as[Event]) { event =>
           val eventDto = event.dto(UUID.randomUUID().toString)
 
-          eventPersistence ! AddEvent(eventDto)
+          println(s"---got event: $event, send as an eventdto: $eventDto---")
+          eventPersistenceActor ! AddEvent(eventDto)
           complete(Created -> eventDto)
         }
       } ~
       get {
-        onComplete((eventPersistence ? GetAllEvents).mapTo[Seq[EventDto]]) {
-          case Success(events) => complete(events)
-          case Failure(ex) => complete(NotFound -> ex.getMessage)
+//        val allEvents = (eventPersistenceActor ? GetAllEvents).mapTo[Seq[EventDto]]
+//        allEvents.onComplete {
+        onComplete((eventPersistenceActor ? GetAllEvents).mapTo[Seq[EventDto]]) {
+          case Success(events) => println(s"---get events---"); complete(OK -> events)
+          case Failure(ex) => println(s"---not get events, get error: ${ex.getMessage}---"); complete(NotFound -> ex.getMessage)
         }
       }
-    } //~
-//    path("events" / id) { eventId =>
-//      get {
-//        list.find(_.id == eventId)
-//          .map(eventDto => complete(eventDto))
-//          .getOrElse(complete(NotFound))
-//      } ~
-//      put {
-//        entity(as[Event]) { event =>
-//          val eventDto = event.toDto(eventId)
-//          list.find(_.id == eventId) match {
-//            case Some(oldEvent) =>
-//              val index = list.indexOf(oldEvent)
-//              list = list.updated[EventDto, List[EventDto]](index, eventDto)
-//            case None =>
-//              list = eventDto :: list
-//          }
-//          complete(eventDto)
-//        }
-//      } ~
-//      delete {
-//        list.find(_.id == eventId) match {
-//          case Some(_) =>
-//            list = list.filterNot(_.id == eventId)
-//            complete(NoContent)
-//          case None =>
-//            complete(NotFound)
-//        }
-//      }
-//    }
+    } ~
+    path("events" / id) { eventId =>
+      get {
+        list.find(_.id == eventId)
+          .map(eventDto => complete(eventDto))
+          .getOrElse(complete(NotFound))
+      } ~
+      put {
+        entity(as[Event]) { event =>
+          val eventDto = event.dto(eventId)
+          list.find(_.id == eventId) match {
+            case Some(oldEvent) =>
+              val index = list.indexOf(oldEvent)
+              list = list.updated[EventDto, List[EventDto]](index, eventDto)
+            case None =>
+              list = eventDto :: list
+          }
+          complete(eventDto)
+        }
+      } ~
+      delete {
+        list.find(_.id == eventId) match {
+          case Some(_) =>
+            list = list.filterNot(_.id == eventId)
+            complete(NoContent)
+          case None =>
+            complete(NotFound)
+        }
+      }
+    }
 }
