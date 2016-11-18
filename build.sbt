@@ -17,6 +17,7 @@ val logbackVersion = "1.1.7"
 val scalaLoggingVersion = "3.5.0"
 val slickVersion = "3.1.1"
 val postgresqlVersion = "9.4.1211"
+val h2Version = "1.4.193"
 val slickJodaMapperVersion = "2.2.0"
 
 val slf4jApiVersion = "1.7.20"
@@ -45,6 +46,7 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" %  "logback-classic" % logbackVersion,
   "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
   "org.postgresql" % "postgresql" % postgresqlVersion,
+  "com.h2database" % "h2" % h2Version,
   "com.typesafe.slick" %% "slick" % slickVersion,
   // slick joda mapper
   "com.github.tototoshi" %% "slick-joda-mapper" % slickJodaMapperVersion,
