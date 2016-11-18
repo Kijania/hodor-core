@@ -20,13 +20,10 @@ class BaseDalImpl[T <: BaseDao[A], A <: BaseDto](tableQuery: TableQuery[T]) exte
   import driver.api._
 
   override def insert(row: A): Future[String] = {
-    println(s"------inserting row: $row------")
     db.run(tableQuery returning tableQuery.map(_.id) += row)
   }
 
   override def findByFilter[C: CanBeQueryCondition](f: (T) => C): Future[Seq[A]] = {
-    println(s"------run condition: $f on the database: $db------")
     db.run(tableQuery.withFilter(f).result)
   }
-
 }

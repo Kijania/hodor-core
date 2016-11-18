@@ -11,8 +11,6 @@ import akka.util.Timeout
 import com.core.persistence.EventPersistenceActor.{AddEvent, GetAllEvents}
 import com.core_api.dto.EventJsonProtocol._
 import com.core_api.dto.{Event, EventDto}
-// TODO replace with defined context
-import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.util.{Failure, Success}
 import scala.concurrent.duration._
@@ -29,17 +27,14 @@ case class EventRoutes(eventPersistenceActor: ActorRef) {
         entity(as[Event]) { event =>
           val eventDto = event.dto(UUID.randomUUID().toString)
 
-          println(s"---got event: $event, send as an eventdto: $eventDto---")
           eventPersistenceActor ! AddEvent(eventDto)
           complete(Created -> eventDto)
         }
       } ~
       get {
-//        val allEvents = (eventPersistenceActor ? GetAllEvents).mapTo[Seq[EventDto]]
-//        allEvents.onComplete {
         onComplete((eventPersistenceActor ? GetAllEvents).mapTo[Seq[EventDto]]) {
-          case Success(events) => println(s"---get events---"); complete(OK -> events)
-          case Failure(ex) => println(s"---not get events, get error: ${ex.getMessage}---"); complete(NotFound -> ex.getMessage)
+          case Success(events) => complete(OK -> events)
+          case Failure(ex) => complete(NotFound -> ex.getMessage)
         }
       }
     } ~
