@@ -4,10 +4,15 @@ import slick.backend.DatabaseConfig
 import slick.driver.JdbcProfile
 
 trait DatabaseConnection {
+  val db: JdbcProfile#Backend#Database
+  val driver: JdbcProfile
+}
+
+trait DatabaseConnectionImpl extends DatabaseConnection {
 
   // TODO encrypt admin user and password, introduce authentication
   private val dbConfig : DatabaseConfig[JdbcProfile] = DatabaseConfig.forConfig("db.postgres")
 
-  implicit val db : JdbcProfile#Backend#Database = dbConfig.db
-  implicit val driver : JdbcProfile = dbConfig.driver
+  override implicit val db : JdbcProfile#Backend#Database = dbConfig.db
+  override implicit val driver : JdbcProfile = dbConfig.driver
 }

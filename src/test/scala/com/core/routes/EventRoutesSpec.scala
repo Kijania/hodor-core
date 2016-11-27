@@ -14,7 +14,9 @@ class EventRoutesSpec extends BaseSpec with ScalatestRouteTest {
 
   "The EventRoutes" should {
 
-    "show an empty list of events" in new Fixture {
+    import Fixture._
+
+    "show an empty list of events" in {
 
       Get("/events") ~> routes.route ~> check {
         status shouldBe OK
@@ -22,7 +24,7 @@ class EventRoutesSpec extends BaseSpec with ScalatestRouteTest {
       }
     }
 
-    "post a valid event and show it" in new Fixture {
+    "post a valid event and show it" in {
 
       Post("/events", httpEntity) ~> routes.route ~> check {
         status shouldBe Created
@@ -33,7 +35,7 @@ class EventRoutesSpec extends BaseSpec with ScalatestRouteTest {
       }
     }
 
-    "put an event with defined id, get it and update it" in new Fixture {
+    "put an event with defined id, get it and update it" in {
 
       Put(s"/events/$eventId", httpEntity) ~> routes.route ~> check {
         status shouldBe OK
@@ -53,7 +55,7 @@ class EventRoutesSpec extends BaseSpec with ScalatestRouteTest {
       }
     }
 
-    "delete an event" in new Fixture {
+    "delete an event" in {
 
       Put(s"/events/$eventId", httpEntity) ~> routes.route ~> check {
         status shouldBe OK
@@ -72,7 +74,7 @@ class EventRoutesSpec extends BaseSpec with ScalatestRouteTest {
   }
 
   // TODO manage closing resources in Fixture, to get rid of memory leak
-  class Fixture {
+  object Fixture {
 
     val eventPersistenceActorStub = system.actorOf(EventPersistenceActorStub.props())
     val routes = EventRoutes(eventPersistenceActorStub)
