@@ -6,7 +6,7 @@ import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.Directives._
 import akka.pattern.ask
 import akka.util.Timeout
-import com.core.persistence.EventPersistenceActor.{AddEvent, GetAllEvents}
+import com.core.persistence.EventPersistenceActor.{AddEvent, GetAllEvents, GetEvent}
 import com.core_api.dto.EventJsonProtocol._
 import com.core_api.dto.{Event, EventDto}
 
@@ -17,7 +17,6 @@ case class EventRoutes(eventPersistenceActor: ActorRef) {
 
   implicit val timeout: Timeout = 3 seconds
   var list = List[EventDto]()
-  val id = """[a-zA-Z0-9_]+""".r
 
   val route =
     path("events") {
@@ -36,11 +35,15 @@ case class EventRoutes(eventPersistenceActor: ActorRef) {
         }
       }
     } ~
-    path("events" / id) { eventId =>
+    path("events" / LongNumber) { eventId =>
       get {
-        list.find(_.id == eventId)
-          .map(eventDto => complete(eventDto))
-          .getOrElse(complete(NotFound))
+        onComplete((eventPersistenceActor ? GetEvent(eventId)).mapTo[Option[EventDto]]) {
+          case Success(eventDtoOption) => eventDtoOption match {
+            case Some(eventDto) => complete(eventDto)
+            case None => complete(NotFound -> "The event does not exist")
+          }
+          case Failure(ex) => complete(InternalServerError -> ex.getMessage)
+        }
       } ~
       put {
         entity(as[Event]) { event =>

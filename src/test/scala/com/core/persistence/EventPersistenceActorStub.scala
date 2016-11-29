@@ -13,6 +13,9 @@ class EventPersistenceActorStub extends Actor {
     case GetAllEvents =>
       sender ! list
 
+    case GetEvent(eventId: Long) =>
+      sender ! list.find(_.id == eventId)
+
     case AddEvent(event: Event) =>
       idCounter += 1
       list = event.dto(idCounter) :: list

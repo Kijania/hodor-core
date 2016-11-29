@@ -22,6 +22,9 @@ class EventRoutesSpec extends BaseSpec with ScalatestRouteTest {
         status shouldBe OK
         responseAs[List[EventDto]] shouldEqual List()
       }
+      Get(s"/events/1") ~> routes.route ~> check {
+        status shouldBe NotFound
+      }
     }
 
     "post a valid event and show it" in {
@@ -33,7 +36,12 @@ class EventRoutesSpec extends BaseSpec with ScalatestRouteTest {
         responseAs[String] shouldEqual eventId
       }
       Get ("/events") ~> routes.route ~> check {
+        status shouldBe OK
         responseAs[List[EventDto]].map(_.event) shouldBe List(event)
+      }
+      Get(s"/events/$eventId") ~> routes.route ~> check {
+        status shouldBe OK
+        responseAs[EventDto].event shouldBe event
       }
     }
 
