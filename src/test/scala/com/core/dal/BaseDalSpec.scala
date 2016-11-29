@@ -23,13 +23,24 @@ class BaseDalSpec extends BaseSpec with DatabaseConnection {
 
   "The Event Data Access Layer" should {
 
+    "find nothing in empty database" in {
+
+      val events = Await.result(eventDal.findByFilter(_ => true), timeout)
+      val event = Await.result(eventDal.findById(1L), timeout)
+
+      events shouldBe List()
+      event shouldBe None
+    }
+
     "insert an event to the database and find all elements" in {
 
       val eventId = Await.result[Long](eventDal.insert(event.dto), timeout)
       val events = Await.result(eventDal.findByFilter(_ => true), timeout)
+      val theEvent = Await.result(eventDal.findById(eventId), timeout)
 
       eventId shouldEqual 1L
       events.map(_.event) shouldBe List(event)
+      theEvent.map(_.event) shouldBe Some(event)
     }
 
   }

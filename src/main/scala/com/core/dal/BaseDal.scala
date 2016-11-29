@@ -11,7 +11,7 @@ import scala.concurrent.Future
 trait BaseDal[T, A] {
   def insert(row: A): Future[Long]
   // TODO def update(row: A): Future[Long]
-  // TODO def findById(id: String): Future[Option[A]]
+  def findById(id: Long): Future[Option[A]]
   def findByFilter[C: CanBeQueryCondition](f: (T) => C): Future[Seq[A]]
   // TODO def deleteById(id: String): Future[Long]
   def createTable(): Future[Unit]
@@ -25,6 +25,10 @@ class BaseDalImpl[T <: BaseDao[A], A <: BaseDto](tableQuery: TableQuery[T])
 
   override def insert(row: A): Future[Long] = {
     db.run(tableQuery returning tableQuery.map(_.id) += row)
+  }
+
+  override def findById(id: Long): Future[Option[A]] = {
+    db.run(tableQuery.filter(_.id === id).result.headOption)
   }
 
   override def findByFilter[C: CanBeQueryCondition](f: (T) => C): Future[Seq[A]] = {

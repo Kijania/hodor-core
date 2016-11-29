@@ -5,7 +5,7 @@ import com.core.persistence.EventPersistenceActor._
 import com.core.dal.{BaseDal, BaseDalImpl}
 import com.core.utils.db.DatabaseConnectionImpl
 import com.core_api.dao.EventDao
-import com.core_api.dto.EventDto
+import com.core_api.dto.{Event, EventDto}
 import slick.lifted.TableQuery
 
 class EventPersistenceActor(dal: BaseDal[EventDao, EventDto]) extends Actor with DatabaseConnectionImpl {
@@ -22,10 +22,11 @@ class EventPersistenceActor(dal: BaseDal[EventDao, EventDto]) extends Actor with
     case GetAllEvents =>
       sender ! dal.findByFilter(_ => true)
 
-    // TODO case event: GetEvent =>
+    case GetEvent(eventId: Long) =>
+      sender ! dal.findById(eventId)
 
-    case AddEvent(eventDto: EventDto) =>
-      sender ! dal.insert(eventDto)
+    case AddEvent(event: Event) =>
+      sender ! dal.insert(event.dto)
 
     // TODO case e: EditEvent =>
 
@@ -40,8 +41,8 @@ object EventPersistenceActor {
   def props(): Props = Props(classOf[EventPersistenceActor])
 
   case object GetAllEvents
-  case class GetEvent(id: String)
+  case class GetEvent(id: Long)
   case class EditEvent(event: EventDto)
-  case class AddEvent(event: EventDto)
+  case class AddEvent(event: Event)
   case class DeleteEvent(id: String)
 }

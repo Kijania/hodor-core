@@ -23,7 +23,7 @@ case class EventRoutes(eventPersistenceActor: ActorRef) {
     path("events") {
       post {
         entity(as[Event]) { event =>
-          onComplete((eventPersistenceActor ? AddEvent(event.dto)).mapTo[Long]) {
+          onComplete((eventPersistenceActor ? AddEvent(event)).mapTo[Long]) {
             case Success(eventId) => complete(Created -> eventId.toString)
             case Failure(ex) => complete(NotFound -> ex.getMessage)
           }
