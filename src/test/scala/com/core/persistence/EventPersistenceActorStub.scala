@@ -7,6 +7,7 @@ import com.core_api.dto.EventDto
 class EventPersistenceActorStub extends Actor {
 
   var list = List[EventDto]()
+  var idCounter: Long = 0
 
   override def receive: Receive = {
     case GetAllEvents =>
@@ -14,6 +15,8 @@ class EventPersistenceActorStub extends Actor {
 
     case AddEvent(eventDto: EventDto) =>
       list = eventDto :: list
+      idCounter += 1
+      sender ! idCounter
   }
 }
 

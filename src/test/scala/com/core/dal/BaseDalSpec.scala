@@ -25,36 +25,28 @@ class BaseDalSpec extends BaseSpec with DatabaseConnection {
 
     "insert an event to the database and find all elements" in {
 
-      val eventId = Await.result(eventDal.insert(eventDto), timeout)
+      val eventId = Await.result[Long](eventDal.insert(event.dto), timeout)
       val events = Await.result(eventDal.findByFilter(_ => true), timeout)
 
-      eventId shouldEqual eventDto.id
-      events shouldBe List(eventDto)
+      eventId shouldEqual 1L
+      events.map(_.event) shouldBe List(event)
     }
 
   }
 
   object CommonFixture {
 
-    println(s"db: $db")
-    println(s"driver: $driver")
-
-    val eventDal = new BaseDalImpl[EventDao, EventDto](TableQuery[EventDao]) {}
-
-    val event = Event("Nicolas Nameday", parseDateTime("2016-12-06T17:31:56+01:00"))
-    val eventId = "1"
-    val eventDto = event.dto(eventId)
-
-    val updatedEventDto = EventDto(eventId,
-      "Women's Day",
-      parseDateTime("2016-03-08T17:31:56+01:00"),
-      Some("Do not forget to bring flowers!"),
-      Some("some@mail.com")
-    )
-
     implicit val timeout = 5 seconds
-
+    val eventDal = new BaseDalImpl[EventDao, EventDto](TableQuery[EventDao]) {}
     Await.result(eventDal.createTable(), timeout)
 
+    val event = Event("Nicolas Nameday", parseDateTime("2016-12-06T17:31:56+01:00"))
+
+    val updatedEvent = Event(
+    "Women's Day",
+        parseDateTime("2016-03-08T17:31:56+01:00"),
+        Some("Do not forget to bring flowers!"),
+        Some("some@mail.com")
+    )
   }
 }

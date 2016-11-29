@@ -9,11 +9,11 @@ import slick.lifted.{CanBeQueryCondition, TableQuery}
 import scala.concurrent.Future
 
 trait BaseDal[T, A] {
-  def insert(row: A): Future[String]
-  // TODO def update(row: A): Future[String]
+  def insert(row: A): Future[Long]
+  // TODO def update(row: A): Future[Long]
   // TODO def findById(id: String): Future[Option[A]]
   def findByFilter[C: CanBeQueryCondition](f: (T) => C): Future[Seq[A]]
-  // TODO def deleteById(id: String): Future[String]
+  // TODO def deleteById(id: String): Future[Long]
   def createTable(): Future[Unit]
 }
 
@@ -23,7 +23,7 @@ class BaseDalImpl[T <: BaseDao[A], A <: BaseDto](tableQuery: TableQuery[T])
 
   import driver.api._
 
-  override def insert(row: A): Future[String] = {
+  override def insert(row: A): Future[Long] = {
     db.run(tableQuery returning tableQuery.map(_.id) += row)
   }
 
@@ -32,7 +32,6 @@ class BaseDalImpl[T <: BaseDao[A], A <: BaseDto](tableQuery: TableQuery[T])
   }
 
   override def createTable(): Future[Unit] = {
-    println(s"inside eventDal, driver: $driver")
     db.run(DBIO.seq(tableQuery.schema.create))
   }
 }

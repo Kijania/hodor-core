@@ -1,7 +1,5 @@
 package com.core.routes
 
-import java.util.UUID
-
 import akka.actor.ActorRef
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import akka.http.scaladsl.model.StatusCodes._
@@ -25,10 +23,10 @@ case class EventRoutes(eventPersistenceActor: ActorRef) {
     path("events") {
       post {
         entity(as[Event]) { event =>
-          val eventDto = event.dto(UUID.randomUUID().toString)
-
-          eventPersistenceActor ! AddEvent(eventDto)
-          complete(Created -> eventDto)
+          onComplete((eventPersistenceActor ? AddEvent(event.dto)).mapTo[Long]) {
+            case Success(eventId) => complete(Created -> eventId.toString)
+            case Failure(ex) => complete(NotFound -> ex.getMessage)
+          }
         }
       } ~
       get {

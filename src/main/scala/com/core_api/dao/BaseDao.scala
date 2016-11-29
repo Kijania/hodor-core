@@ -4,5 +4,5 @@ import slick.lifted.Tag
 import slick.driver.PostgresDriver.api._
 
 abstract class BaseDao[T](tag: Tag, name: String) extends Table[T](tag, name) {
-  def id = column[String]("id", O.PrimaryKey, O.AutoInc)
+  def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
 }

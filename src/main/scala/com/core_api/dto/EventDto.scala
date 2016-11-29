@@ -10,11 +10,13 @@ case class Event(
                   text: Option[String] = None,
                   mail: Option[String] = None
 ) {
-  def dto(id: String) = EventDto(id, name, date, text, mail)
+  def dto: EventDto = EventDto(-1L, name, date, text, mail)
+  def dto(id: Long): EventDto = EventDto(id, name, date, text, mail)
+  def dto(id: String): EventDto = dto(id.toLong)
 }
 
 case class EventDto(
-                     id: String,
+                     id: Long,
                      name: String,
                      date: DateTime,
                      text: Option[String] = None,

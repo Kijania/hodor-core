@@ -25,7 +25,7 @@ class EventPersistenceActor(dal: BaseDal[EventDao, EventDto]) extends Actor with
     // TODO case event: GetEvent =>
 
     case AddEvent(eventDto: EventDto) =>
-      dal.insert(eventDto)
+      sender ! dal.insert(eventDto)
 
     // TODO case e: EditEvent =>
 
