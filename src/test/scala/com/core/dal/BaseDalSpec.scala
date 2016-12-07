@@ -24,7 +24,6 @@ class BaseDalSpec extends BaseSpec with DatabaseConnection {
   "The Event Data Access Layer" should {
 
     "find nothing in empty database" in {
-
       val events = Await.result(eventDal.findByFilter(_ => true), timeout)
       val event = Await.result(eventDal.findById(1L), timeout)
 
@@ -32,15 +31,27 @@ class BaseDalSpec extends BaseSpec with DatabaseConnection {
       event shouldBe None
     }
 
-    "insert an event to the database and find all elements" in {
-
-      val eventId = Await.result[Long](eventDal.insert(event.dto), timeout)
+    "insert an event and find it" in {
+      val eventId = Await.result(eventDal.insert(event.dto), timeout)
       val events = Await.result(eventDal.findByFilter(_ => true), timeout)
       val theEvent = Await.result(eventDal.findById(eventId), timeout)
 
       eventId shouldEqual 1L
       events.map(_.event) shouldBe List(event)
       theEvent.map(_.event) shouldBe Some(event)
+    }
+
+    "not be able to update not existing event" in {
+      val notExistingEvent = Await.result(eventDal.update(updatedEvent.dto(-1L)), timeout)
+
+      notExistingEvent shouldBe None
+    }
+
+    "update an event" in {
+      val eventId = Await.result(eventDal.insert(event.dto), timeout)
+      val theUpdatedEvent = Await.result(eventDal.update(updatedEvent.dto(eventId)), timeout)
+
+      theUpdatedEvent shouldEqual Some(updatedEvent.dto(eventId))
     }
 
   }
