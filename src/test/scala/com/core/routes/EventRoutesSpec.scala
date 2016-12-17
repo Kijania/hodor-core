@@ -20,7 +20,7 @@ class EventRoutesSpec extends BaseSpec with ScalatestRouteTest {
 
       Get("/events") ~> routes.route ~> check {
         status shouldBe OK
-        responseAs[List[EventDto]] shouldEqual List()
+        responseAs[List[EventDto]] shouldBe List()
       }
       Get(s"/events/$eventId") ~> routes.route ~> check {
         status shouldBe NotFound
@@ -32,7 +32,7 @@ class EventRoutesSpec extends BaseSpec with ScalatestRouteTest {
 
       Post("/events", httpEntity) ~> routes.route ~> check {
         status shouldBe Created
-        responseAs[String] shouldEqual eventId
+        responseAs[String] shouldBe eventId
       }
       Get ("/events") ~> routes.route ~> check {
         status shouldBe OK
@@ -60,19 +60,19 @@ class EventRoutesSpec extends BaseSpec with ScalatestRouteTest {
 
       Post("/events", httpEntity) ~> routes.route ~> check {
         status shouldBe Created
-        responseAs[String] shouldEqual eventId
+        responseAs[String] shouldBe eventId
       }
       Get(s"/events/$eventId") ~> routes.route ~> check {
         status shouldBe OK
-        responseAs[EventDto].event shouldEqual event
+        responseAs[EventDto].event shouldBe event
       }
       Put(s"/events/$eventId", httpUpdatedEntity) ~> routes.route ~> check {
         status shouldBe OK
-        responseAs[EventDto].event shouldEqual updatedEvent
+        responseAs[EventDto].event shouldBe updatedEvent
       }
       Get(s"/events/$eventId") ~> routes.route ~> check {
         status shouldBe OK
-        responseAs[EventDto].event shouldEqual updatedEvent
+        responseAs[EventDto].event shouldBe updatedEvent
       }
     }
 
@@ -82,7 +82,7 @@ class EventRoutesSpec extends BaseSpec with ScalatestRouteTest {
 
       Post(s"/events", httpEntity) ~> routes.route ~> check {
         status shouldBe Created
-        responseAs[String] shouldEqual eventId
+        responseAs[String] shouldBe eventId
       }
       Delete(s"/events/$eventId") ~> routes.route ~> check {
         status shouldBe NoContent

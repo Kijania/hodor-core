@@ -36,7 +36,7 @@ class BaseDalSpec extends BaseSpec with DatabaseConnection {
       val events = Await.result(eventDal.findByFilter(_ => true), timeout)
       val theEvent = Await.result(eventDal.findById(eventId), timeout)
 
-      eventId shouldEqual 1L
+      eventId shouldBe 1L
       events.map(_.event) shouldBe List(event)
       theEvent.map(_.event) shouldBe Some(event)
     }
@@ -50,8 +50,23 @@ class BaseDalSpec extends BaseSpec with DatabaseConnection {
     "update an event" in {
       val eventId = Await.result(eventDal.insert(event.dto), timeout)
       val theUpdatedEvent = Await.result(eventDal.update(updatedEvent.dto(eventId)), timeout)
+      val theEvent = Await.result(eventDal.findById(eventId), timeout)
 
-      theUpdatedEvent shouldEqual Some(updatedEvent.dto(eventId))
+      theUpdatedEvent shouldBe Some(updatedEvent.dto(eventId))
+      theEvent shouldBe Some(updatedEvent.dto(eventId))
+    }
+
+    "not be able to delete not existing event" in {
+      val deletedEventId = Await.result(eventDal.deleteById(-1L), timeout)
+
+      deletedEventId shouldBe None
+    }
+
+    "delete an event" in {
+      val eventId = Await.result(eventDal.insert(event.dto), timeout)
+      val deletedEventId = Await.result(eventDal.deleteById(eventId), timeout)
+
+      deletedEventId shouldBe Some(eventId)
     }
 
   }
