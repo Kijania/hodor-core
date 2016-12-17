@@ -6,7 +6,7 @@ import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.Directives._
 import akka.pattern.ask
 import akka.util.Timeout
-import com.core.persistence.EventPersistenceActor.{AddEvent, EditEvent, GetAllEvents, GetEvent}
+import com.core.persistence.EventPersistenceActor._
 import com.core_api.dto.EventJsonProtocol._
 import com.core_api.dto.{Event, EventDto}
 
@@ -15,7 +15,7 @@ import scala.concurrent.duration._
 
 case class EventRoutes(eventPersistenceActor: ActorRef) {
 
-  implicit val timeout: Timeout = 3 seconds
+  implicit val timeout: Timeout = 3.seconds
   var list = List[EventDto]()
 
   val route =
@@ -39,7 +39,7 @@ case class EventRoutes(eventPersistenceActor: ActorRef) {
       get {
         onComplete((eventPersistenceActor ? GetEvent(eventId)).mapTo[Option[EventDto]]) {
           case Success(eventDtoOption) => eventDtoOption match {
-            case Some(eventDto) => complete(eventDto)
+            case Some(eventDto) => complete(OK -> eventDto)
             case None => complete(NotFound -> "The event does not exist")
           }
           case Failure(ex) => complete(InternalServerError -> ex.getMessage)
@@ -47,11 +47,10 @@ case class EventRoutes(eventPersistenceActor: ActorRef) {
       } ~
       put {
         entity(as[Event]) { event =>
-          val eventDto = event.dto(eventId)
           onComplete((eventPersistenceActor ? EditEvent(event.dto(eventId))).mapTo[Option[EventDto]]) {
             case Success(eventDtoOption) => eventDtoOption match {
               case Some(theEventDto) =>
-                complete(theEventDto)
+                complete(OK -> theEventDto)
               case None =>
                 complete(NotFound -> "The event meant to update does not exist")
             }
@@ -60,12 +59,14 @@ case class EventRoutes(eventPersistenceActor: ActorRef) {
         }
       } ~
       delete {
-        list.find(_.id == eventId) match {
-          case Some(_) =>
-            list = list.filterNot(_.id == eventId)
-            complete(NoContent)
-          case None =>
-            complete(NotFound)
+        onComplete((eventPersistenceActor ? DeleteEvent(eventId)).mapTo[Option[Long]]) {
+          case Success(id) => id match {
+            case Some(_) =>
+              complete(NoContent)
+            case None =>
+              complete(NotFound)
+          }
+          case Failure(ex) => complete(InternalServerError -> ex.getMessage)
         }
       }
     }

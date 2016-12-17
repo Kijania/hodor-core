@@ -76,7 +76,6 @@ class EventRoutesSpec extends BaseSpec with ScalatestRouteTest {
       }
     }
 
-    pending
     "delete an event" in {
       val eventId = "3"
 

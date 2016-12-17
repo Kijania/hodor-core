@@ -73,7 +73,7 @@ class BaseDalSpec extends BaseSpec with DatabaseConnection {
 
   object CommonFixture {
 
-    implicit val timeout = 5 seconds
+    implicit val timeout = 5.seconds
     val eventDal = new BaseDalImpl[EventDao, EventDto](TableQuery[EventDao]) {}
     Await.result(eventDal.createTable(), timeout)
 

@@ -31,7 +31,8 @@ class EventPersistenceActor(dal: BaseDal[EventDao, EventDto]) extends Actor with
     case EditEvent(eventDto: EventDto) =>
       sender ! dal.update(eventDto)
 
-    // TODO case d: DeleteEvent =>
+    case DeleteEvent(id: Long) =>
+      sender ! dal.deleteById(id)
   }
 }
 
@@ -45,5 +46,5 @@ object EventPersistenceActor {
   case class GetEvent(id: Long)
   case class EditEvent(eventDto: EventDto)
   case class AddEvent(event: Event)
-  case class DeleteEvent(id: String)
+  case class DeleteEvent(id: Long)
 }

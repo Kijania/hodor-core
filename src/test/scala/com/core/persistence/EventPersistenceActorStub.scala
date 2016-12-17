@@ -1,7 +1,9 @@
 package com.core.persistence
 
 import akka.actor.{Actor, Props}
-import com.core.persistence.EventPersistenceActor.{AddEvent, EditEvent, GetAllEvents, GetEvent}
+import akka.http.scaladsl.model.StatusCodes._
+import akka.http.scaladsl.server.Directives._
+import com.core.persistence.EventPersistenceActor._
 import com.core_api.dto.{Event, EventDto}
 
 class EventPersistenceActorStub extends Actor {
@@ -28,6 +30,15 @@ class EventPersistenceActorStub extends Actor {
         case None => list
       }
       sender ! oldEvent.map(_ => eventDto)
+
+    case DeleteEvent(id: Long) =>
+      list.find(_.id == id) match {
+        case Some(_) =>
+          list = list.filterNot(_.id == id)
+          sender ! Some(id)
+        case None =>
+          sender ! None
+      }
   }
 }
 
