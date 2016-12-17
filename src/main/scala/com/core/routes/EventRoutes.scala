@@ -6,7 +6,7 @@ import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.Directives._
 import akka.pattern.ask
 import akka.util.Timeout
-import com.core.persistence.EventPersistenceActor.{AddEvent, GetAllEvents, GetEvent}
+import com.core.persistence.EventPersistenceActor.{AddEvent, EditEvent, GetAllEvents, GetEvent}
 import com.core_api.dto.EventJsonProtocol._
 import com.core_api.dto.{Event, EventDto}
 
@@ -48,14 +48,15 @@ case class EventRoutes(eventPersistenceActor: ActorRef) {
       put {
         entity(as[Event]) { event =>
           val eventDto = event.dto(eventId)
-          list.find(_.id == eventId) match {
-            case Some(oldEvent) =>
-              val index = list.indexOf(oldEvent)
-              list = list.updated[EventDto, List[EventDto]](index, eventDto)
-            case None =>
-              list = eventDto :: list
+          onComplete((eventPersistenceActor ? EditEvent(event.dto(eventId))).mapTo[Option[EventDto]]) {
+            case Success(eventDtoOption) => eventDtoOption match {
+              case Some(theEventDto) =>
+                complete(theEventDto)
+              case None =>
+                complete(NotFound -> "The event meant to update does not exist")
+            }
+            case Failure(ex) => complete(InternalServerError -> ex.getMessage)
           }
-          complete(eventDto)
         }
       } ~
       delete {

@@ -1,7 +1,7 @@
 package com.core.persistence
 
 import akka.actor.{Actor, Props}
-import com.core.persistence.EventPersistenceActor.{AddEvent, GetAllEvents, GetEvent}
+import com.core.persistence.EventPersistenceActor.{AddEvent, EditEvent, GetAllEvents, GetEvent}
 import com.core_api.dto.{Event, EventDto}
 
 class EventPersistenceActorStub extends Actor {
@@ -20,6 +20,14 @@ class EventPersistenceActorStub extends Actor {
       idCounter += 1
       list = event.dto(idCounter) :: list
       sender ! idCounter
+
+    case EditEvent(eventDto: EventDto) =>
+      val oldEvent = list.find(_.id == eventDto.id)
+      list = oldEvent match {
+        case Some(theEventDto) => eventDto :: list.filterNot(_.id == eventDto.id)
+        case None => list
+      }
+      sender ! oldEvent.map(_ => eventDto)
   }
 }
 

@@ -13,22 +13,21 @@ import com.core_api.utils.DateTimeParser._
 class EventRoutesSpec extends BaseSpec with ScalatestRouteTest {
 
   "The EventRoutes" should {
-
     import Fixture._
 
-    "show an empty list of events" in {
+    "get an empty list of events" in {
+      val eventId = "1"
 
       Get("/events") ~> routes.route ~> check {
         status shouldBe OK
         responseAs[List[EventDto]] shouldEqual List()
       }
-      Get(s"/events/1") ~> routes.route ~> check {
+      Get(s"/events/$eventId") ~> routes.route ~> check {
         status shouldBe NotFound
       }
     }
 
-    "post a valid event and show it" in {
-
+    "post a valid event and get it" in {
       val eventId = "1"
 
       Post("/events", httpEntity) ~> routes.route ~> check {
@@ -45,9 +44,18 @@ class EventRoutesSpec extends BaseSpec with ScalatestRouteTest {
       }
     }
 
-    pending
-    "put an event with defined id, get it and update it" in {
+    "not be able to put not existing event" in {
+      val eventId = "2"
 
+      Get(s"/events/$eventId") ~> routes.route ~> check {
+        status shouldBe NotFound
+      }
+      Put(s"/events/$eventId", httpUpdatedEntity) ~> routes.route ~> check {
+        status shouldBe NotFound
+      }
+    }
+
+    "put an event" in {
       val eventId = "2"
 
       Post("/events", httpEntity) ~> routes.route ~> check {
@@ -70,7 +78,6 @@ class EventRoutesSpec extends BaseSpec with ScalatestRouteTest {
 
     pending
     "delete an event" in {
-
       val eventId = "3"
 
       Post(s"/events", httpEntity) ~> routes.route ~> check {
