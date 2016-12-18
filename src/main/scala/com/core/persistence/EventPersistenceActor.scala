@@ -8,10 +8,11 @@ import com.core_api.dao.EventDao
 import com.core_api.dto.{Event, EventDto}
 import slick.lifted.TableQuery
 
-class EventPersistenceActor(dal: BaseDal[EventDao, EventDto]) extends Actor with DatabaseConnectionImpl {
+class EventPersistenceActor extends Actor with DatabaseConnectionImpl{
+
+  val dal: BaseDal[EventDao, EventDto] = new BaseDalImpl[EventDao, EventDto](TableQuery[EventDao])
 
   override def preStart(): Unit = {
-    val dal = new BaseDalImpl[EventDao, EventDto](TableQuery[EventDao])
     dal.createTable()
   }
 
@@ -37,8 +38,6 @@ class EventPersistenceActor(dal: BaseDal[EventDao, EventDto]) extends Actor with
 }
 
 object EventPersistenceActor {
-
-  val tableQuery = TableQuery[EventDao]
 
   def props(): Props = Props(classOf[EventPersistenceActor])
 
