@@ -22,10 +22,12 @@ trait CoreServer extends LazyLogging with RouteConcatenation {
 
   def run() {
     val eventCtrl = system.actorOf(EventPersistenceActor.props())
+    val swaggerDocService = new SwaggerDocService(system)
 
-    val routes = cors() ( new EventRoutes(eventCtrl).route ~
-      new SwaggerDocService(system).routes
-    )
+    val routes =
+      swaggerDocService.assets ~
+      cors() ( new EventRoutes(eventCtrl).route ~
+      swaggerDocService.routes)
 
     val binding = Http().bindAndHandle(routes, HodorSettings.host, HodorSettings.port)
 
