@@ -1,8 +1,11 @@
 package com.core
 
+
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.RouteConcatenation
+import akka.http.scaladsl.model.HttpMethods._
+import scala.collection.immutable
 import akka.stream.ActorMaterializer
 import com.core.persistence.EventPersistenceActor
 import com.core.routes.EventRoutes
@@ -10,6 +13,7 @@ import com.core.swagger.SwaggerDocService
 import com.core.utils.HodorSettings
 import com.typesafe.scalalogging.LazyLogging
 import ch.megard.akka.http.cors.CorsDirectives._
+import ch.megard.akka.http.cors.CorsSettings
 // TODO replace with defined context
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -24,9 +28,13 @@ trait CoreServer extends LazyLogging with RouteConcatenation {
     val eventCtrl = system.actorOf(EventPersistenceActor.props())
     val swaggerDocService = new SwaggerDocService(system)
 
+    val corsSettings = CorsSettings.defaultSettings.copy(allowedMethods = immutable.Seq(
+      GET, PUT, POST, DELETE)
+    )
+
     val routes =
       swaggerDocService.assets ~
-      cors() ( new EventRoutes(eventCtrl).route ~
+      cors(corsSettings) ( new EventRoutes(eventCtrl).route ~
       swaggerDocService.routes)
 
     val binding = Http().bindAndHandle(routes, HodorSettings.host, HodorSettings.port)
