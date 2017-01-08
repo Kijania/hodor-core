@@ -1,6 +1,9 @@
 package com.core.persistence
 
 import akka.actor.{Actor, Props}
+// TODO replace with defined context
+import scala.concurrent.ExecutionContext.Implicits.global
+import akka.pattern.pipe
 import com.core.persistence.EventPersistenceActor._
 import com.core.dal.{BaseDal, BaseDalImpl}
 import com.core.utils.db.DatabaseConnectionImpl
@@ -21,19 +24,19 @@ class EventPersistenceActor extends Actor with DatabaseConnectionImpl{
 
   override def receive: Receive = {
     case GetAllEvents =>
-      sender ! dal.findByFilter(_ => true)
+      dal.findByFilter(_ => true) pipeTo sender
 
     case GetEvent(eventId: Long) =>
-      sender ! dal.findById(eventId)
+      dal.findById(eventId) pipeTo sender
 
     case AddEvent(event: Event) =>
-      sender ! dal.insert(event.dto)
+      dal.insert(event.dto) pipeTo sender
 
     case EditEvent(eventDto: EventDto) =>
-      sender ! dal.update(eventDto)
+      dal.update(eventDto) pipeTo sender
 
     case DeleteEvent(id: Long) =>
-      sender ! dal.deleteById(id)
+      dal.deleteById(id) pipeTo sender
   }
 }
 

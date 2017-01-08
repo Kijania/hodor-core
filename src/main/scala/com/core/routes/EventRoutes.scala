@@ -122,7 +122,7 @@ case class EventRoutes(eventPersistenceActor: ActorRef) {
   }
 
   @Path("/{id}")
-  @ApiOperation(value = "Delete Event", httpMethod = "DELETE")
+  @ApiOperation(value = "Delete Event", httpMethod = "DELETE", produces = "text/plain; charset=UTF-8")
   @ApiImplicitParams(Array(
     new ApiImplicitParam (name = "id", value = "Event Id", required = true, dataType = "long", paramType = "path")
   ))
