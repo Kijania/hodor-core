@@ -18,11 +18,11 @@ class EventRoutesSpec extends BaseSpec with ScalatestRouteTest {
     "get an empty list of events" in {
       val eventId = "1"
 
-      Get("/events") ~> routes.route ~> check {
+      Get("/events") ~> routes.routes ~> check {
         status shouldBe OK
         responseAs[List[EventDto]] shouldBe List()
       }
-      Get(s"/events/$eventId") ~> routes.route ~> check {
+      Get(s"/events/$eventId") ~> routes.routes ~> check {
         status shouldBe NotFound
       }
     }
@@ -30,15 +30,15 @@ class EventRoutesSpec extends BaseSpec with ScalatestRouteTest {
     "post a valid event and get it" in {
       val eventId = "1"
 
-      Post("/events", httpEntity) ~> routes.route ~> check {
+      Post("/events", httpEntity) ~> routes.routes ~> check {
         status shouldBe Created
         responseAs[String] shouldBe eventId
       }
-      Get ("/events") ~> routes.route ~> check {
+      Get("/events") ~> routes.routes ~> check {
         status shouldBe OK
         responseAs[List[EventDto]].map(_.event) shouldBe List(event)
       }
-      Get(s"/events/$eventId") ~> routes.route ~> check {
+      Get(s"/events/$eventId") ~> routes.routes ~> check {
         status shouldBe OK
         responseAs[EventDto].event shouldBe event
       }
@@ -47,10 +47,10 @@ class EventRoutesSpec extends BaseSpec with ScalatestRouteTest {
     "not be able to put not existing event" in {
       val eventId = "2"
 
-      Get(s"/events/$eventId") ~> routes.route ~> check {
+      Get(s"/events/$eventId") ~> routes.routes ~> check {
         status shouldBe NotFound
       }
-      Put(s"/events/$eventId", httpUpdatedEntity) ~> routes.route ~> check {
+      Put(s"/events/$eventId", httpUpdatedEntity) ~> routes.routes ~> check {
         status shouldBe NotFound
       }
     }
@@ -58,19 +58,19 @@ class EventRoutesSpec extends BaseSpec with ScalatestRouteTest {
     "put an event" in {
       val eventId = "2"
 
-      Post("/events", httpEntity) ~> routes.route ~> check {
+      Post("/events", httpEntity) ~> routes.routes ~> check {
         status shouldBe Created
         responseAs[String] shouldBe eventId
       }
-      Get(s"/events/$eventId") ~> routes.route ~> check {
+      Get(s"/events/$eventId") ~> routes.routes ~> check {
         status shouldBe OK
         responseAs[EventDto].event shouldBe event
       }
-      Put(s"/events/$eventId", httpUpdatedEntity) ~> routes.route ~> check {
+      Put(s"/events/$eventId", httpUpdatedEntity) ~> routes.routes ~> check {
         status shouldBe OK
         responseAs[EventDto].event shouldBe updatedEvent
       }
-      Get(s"/events/$eventId") ~> routes.route ~> check {
+      Get(s"/events/$eventId") ~> routes.routes ~> check {
         status shouldBe OK
         responseAs[EventDto].event shouldBe updatedEvent
       }
@@ -79,17 +79,17 @@ class EventRoutesSpec extends BaseSpec with ScalatestRouteTest {
     "delete an event" in {
       val eventId = "3"
 
-      Post(s"/events", httpEntity) ~> routes.route ~> check {
+      Post(s"/events", httpEntity) ~> routes.routes ~> check {
         status shouldBe Created
         responseAs[String] shouldBe eventId
       }
-      Delete(s"/events/$eventId") ~> routes.route ~> check {
+      Delete(s"/events/$eventId") ~> routes.routes ~> check {
         status shouldBe NoContent
       }
-      Delete(s"/events/$eventId") ~> routes.route ~> check {
+      Delete(s"/events/$eventId") ~> routes.routes ~> check {
         status shouldBe NotFound
       }
-      Get(s"/events/$eventId") ~> routes.route ~> check {
+      Get(s"/events/$eventId") ~> routes.routes ~> check {
         status shouldBe NotFound
       }
     }

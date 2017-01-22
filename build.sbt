@@ -20,7 +20,7 @@ val postgresqlVersion = "9.4.1211"
 val h2Version = "1.4.193"
 val slickJodaMapperVersion = "2.2.0"
 val swaggerAkkaHttpVersion = "0.7.3"
-val akkaHttpCorsVersion = "0.1.0"
+val akkaHttpCorsVersion = "0.1.8"
 
 val slf4jApiVersion = "1.7.20"
 val typesafeConfigVersion = "1.3.0"
@@ -48,7 +48,7 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % scalatestVersion,
   // joda time wrapper for scala
   "com.github.nscala-time" %% "nscala-time" % nscalaTimeVersion,
-  "ch.qos.logback" %  "logback-classic" % logbackVersion,
+  "ch.qos.logback" % "logback-classic" % logbackVersion,
   "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
   "org.postgresql" % "postgresql" % postgresqlVersion,
   "com.h2database" % "h2" % h2Version,
@@ -64,9 +64,9 @@ libraryDependencies ++= Seq(
 
 conflictManager := ConflictManager.strict
 dependencyOverrides ++= Set(
-  "org.scala-lang" % "scala-library" % scalaV,                // because of slickVersion
-  "org.slf4j" % "slf4j-api" % slf4jApiVersion,                // because of akkaVersion
-  "com.typesafe" % "config" % typesafeConfigVersion,          // because of slickVersion
+  "org.scala-lang" % "scala-library" % scalaV, // because of slickVersion
+  "org.slf4j" % "slf4j-api" % slf4jApiVersion, // because of akkaVersion
+  "com.typesafe" % "config" % typesafeConfigVersion, // because of slickVersion
   "org.scala-lang.modules" %% "scala-xml" % scalaXmlVersion,
   "com.typesafe.akka" %% "akka-http-experimental" % akkaVersion,
   "com.typesafe.akka" %% "akka-http-spray-json-experimental" % akkaVersion,

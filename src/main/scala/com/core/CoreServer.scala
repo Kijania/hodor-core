@@ -3,8 +3,11 @@ package com.core
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.server.RouteConcatenation
+import akka.http.scaladsl.server.{RejectionHandler, RouteConcatenation}
+import akka.http.scaladsl.server.directives.ExecutionDirectives
 import akka.http.scaladsl.model.HttpMethods._
+import akka.http.scaladsl.server.Route
+
 import scala.collection.immutable
 import akka.stream.ActorMaterializer
 import com.core.persistence.EventPersistenceActor
@@ -13,7 +16,8 @@ import com.core.swagger.SwaggerDocService
 import com.core.utils.HodorSettings
 import com.typesafe.scalalogging.LazyLogging
 import ch.megard.akka.http.cors.CorsDirectives._
-import ch.megard.akka.http.cors.CorsSettings
+import ch.megard.akka.http.cors.{CorsDirectives, CorsSettings}
+
 // TODO replace with defined context
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -32,10 +36,22 @@ trait CoreServer extends LazyLogging with RouteConcatenation {
       GET, PUT, POST, DELETE)
     )
 
-    val routes =
-      swaggerDocService.assets ~
-      cors(corsSettings) ( new EventRoutes(eventCtrl).route ~
-      swaggerDocService.routes)
+    val simpleRoutes = new EventRoutes(eventCtrl).routes
+
+    // handle rejected requests (with status 40x or 50x).
+    // Rejected requests will go through cors directives untouched it means no response will be visible.
+    // Rejection handler is provided to return meaningful HTTP responses
+    def handleCorsRejections(routes: Route) = {
+      ExecutionDirectives.handleRejections(CorsDirectives.corsRejectionHandler)(
+        cors(corsSettings)(
+          ExecutionDirectives.handleRejections(RejectionHandler.default) {
+            routes
+          }))
+    }
+
+    val routes = swaggerDocService.assets ~
+      swaggerDocService.routes ~
+      handleCorsRejections(simpleRoutes)
 
     val binding = Http().bindAndHandle(routes, HodorSettings.host, HodorSettings.port)
 
