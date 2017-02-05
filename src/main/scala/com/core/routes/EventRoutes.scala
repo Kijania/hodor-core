@@ -21,7 +21,7 @@ import scala.util.{Failure, Success}
 @Api(value = "/events")
 case class EventRoutes(eventPersistenceActor: ActorRef) {
 
-  implicit val timeout: Timeout = 3.seconds
+  implicit val timeout: Timeout = 3 seconds
   var list = List[EventDto]()
 
   val routes: Route =

@@ -8,6 +8,8 @@ val scalaV = "2.11.8"
 
 scalaVersion := scalaV
 
+scalacOptions := Seq("-language:postfixOps")
+
 val akkaVersion = "2.4.11"
 val sprayJsonVersion = "1.3.2"
 val mockitoVersion = "1.9.5"
