@@ -10,10 +10,10 @@ object DateTimeJsonProtocol extends json.DefaultJsonProtocol {
 
     override def write(obj: DateTime) = JsString(dateTimeToString(obj))
 
-    // example datetime 2016-09-30T21:17:52+02:00
     override def read(json: JsValue): DateTime = json match {
       case JsString(s) => parseDateTime(s)
-      case _ => throw new DeserializationException(s"provided json: $json could not be deserialized to proper datetime")
+      case _ =>
+        throw new DeserializationException(s"provided json: $json could not be deserialized to proper datetime")
     }
   }
 }
