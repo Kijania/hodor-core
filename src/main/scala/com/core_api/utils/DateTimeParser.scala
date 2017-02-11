@@ -1,13 +1,31 @@
 package com.core_api.utils
 
 import com.github.nscala_time.time.Imports._
-import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat}
+import org.joda.time.format.ISODateTimeFormat
+
+import scala.util.Try
 
 object DateTimeParser {
 
-  private val parserISO: DateTimeFormatter = ISODateTimeFormat.dateTimeNoMillis()
+  // TODO add login when bad format
+  def parseDateTime(s: String): DateTime = {
+    (Try {
+      ISODateTimeFormat
+        .dateTime()
+        .parseDateTime(s)
+        .withSecondOfMinute(0)
+        .withMillisOfSecond(0)
+    } orElse {
+      Try {
+        ISODateTimeFormat
+          .dateTimeNoMillis()
+          .parseDateTime(s)
+          .withSecondOfMinute(0)
+      }
+    } toOption
+      ).get
+  }
 
-  def parseDateTime(s: String): DateTime = parserISO.parseDateTime(s)
+  def dateTimeToString(obj: DateTime): String = ISODateTimeFormat.dateTimeNoMillis().print(obj)
 
-  def dateTimeToString(obj: DateTime): String = parserISO.print(obj)
 }
