@@ -9,7 +9,7 @@ import akka.stream.ActorMaterializer
 import ch.megard.akka.http.cors.{CorsDirectives, CorsSettings}
 import ch.megard.akka.http.cors.CorsDirectives._
 import com.core.routes.EventRoutes
-import com.core.utils.{HodorSettings => settings}
+import com.core.utils.Configuration
 import com.github.swagger.akka.{HasActorSystem, SwaggerHttpService}
 
 import scala.reflect.runtime.{universe => runtimeUniverse}
@@ -17,11 +17,11 @@ import io.swagger.models.ExternalDocs
 
 import scala.collection.immutable
 
-class SwaggerDocService(system: ActorSystem) extends SwaggerHttpService with HasActorSystem {
+class SwaggerDocService(system: ActorSystem, configuration: Configuration) extends SwaggerHttpService with HasActorSystem {
   override implicit val actorSystem: ActorSystem = system
   override implicit val materializer: ActorMaterializer = ActorMaterializer()
   override val apiTypes = Seq(runtimeUniverse.typeOf[EventRoutes])
-  override val host: String = s"${settings.host}:${settings.port}"
+  override val host: String = s"${configuration.host}:${configuration.port}"
   override val externalDocs = Some(new ExternalDocs("Hodor-Core Docs", "https://github.com/kijania/hodor-core"))
 
   val corsSettings = CorsSettings.defaultSettings.copy(allowedMethods = immutable.Seq(

@@ -1,33 +1,31 @@
 package com.core
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorRef, ActorSystem}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.RouteConcatenation
 import akka.stream.ActorMaterializer
-import com.core.persistence.EventPersistenceActor
 import com.core.routes.EventRoutes
 import com.core.swagger.SwaggerDocService
-import com.core.utils.HodorSettings
+import com.core.utils.Configuration
 import com.typesafe.scalalogging.LazyLogging
 import com.wiring.ProductionModule
+
 import scala.util.{Failure, Success}
 
-class CoreServer(actorSystem: ActorSystem) extends LazyLogging with RouteConcatenation {
+class CoreServer(actorSystem: ActorSystem, eventCtrl: ActorRef, configuration: Configuration, swaggerDocService: SwaggerDocService) extends LazyLogging with RouteConcatenation {
 
   implicit val system = actorSystem
   implicit val materializer = ActorMaterializer()
 
+  // TODO separate routings to another class when introducing another routing
   def start() {
-    val eventCtrl = system.actorOf(EventPersistenceActor.props())
     val simpleRoutes = new EventRoutes(eventCtrl).routes
-
-    val swaggerDocService = new SwaggerDocService(system)
 
     val routes = swaggerDocService.assets ~
       swaggerDocService.routes ~
       swaggerDocService.handleCorsRejections(simpleRoutes)
 
-    val binding = Http().bindAndHandle(routes, HodorSettings.host, HodorSettings.port)
+    val binding = Http().bindAndHandle(routes, configuration.host, configuration.port)
 
     binding.onComplete {
       case Success(b) => logger.info(s"Successfully bind to address ${b.localAddress}")

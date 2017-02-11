@@ -2,7 +2,7 @@ package com.core.utils
 
 import com.typesafe.config.ConfigFactory
 
-object HodorSettings {
+class Configuration {
   private val config = ConfigFactory.load()
 
   val host = config.getString("http.host")
