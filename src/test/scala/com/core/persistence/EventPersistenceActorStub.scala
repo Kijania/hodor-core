@@ -1,8 +1,6 @@
 package com.core.persistence
 
 import akka.actor.{Actor, Props}
-import akka.http.scaladsl.model.StatusCodes._
-import akka.http.scaladsl.server.Directives._
 import com.core.persistence.EventPersistenceActor._
 import com.core_api.dto.{Event, EventDto}
 

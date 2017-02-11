@@ -1,7 +1,6 @@
 package com.core.dal
 
 import com.BaseSpec
-import com.core.utils.db.DatabaseConnection
 import com.core_api.dao.EventDao
 import com.core_api.dto.{Event, EventDto}
 import com.core_api.utils.DateTimeParser._
@@ -12,12 +11,7 @@ import slick.lifted.TableQuery
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-class BaseDalSpec extends BaseSpec with DatabaseConnection {
-
-  private val dbConfig : DatabaseConfig[JdbcProfile] = DatabaseConfig.forConfig("db.h2")
-
-  override implicit val db : JdbcProfile#Backend#Database = dbConfig.db
-  override implicit val driver : JdbcProfile = dbConfig.driver
+class BaseDalSpec extends BaseSpec {
 
   import CommonFixture._
 
@@ -74,7 +68,14 @@ class BaseDalSpec extends BaseSpec with DatabaseConnection {
   object CommonFixture {
 
     implicit val timeout = 5 seconds
-    val eventDal = new BaseDalImpl[EventDao, EventDto](TableQuery[EventDao]) {}
+
+    private val dbConfig : DatabaseConfig[JdbcProfile] = DatabaseConfig.forConfig("db.h2")
+
+    implicit val db : JdbcProfile#Backend#Database = dbConfig.db
+    implicit val driver : JdbcProfile = dbConfig.driver
+
+    val eventDal = new BaseDalImpl[EventDao, EventDto](TableQuery[EventDao])(db, driver)
+
     Await.result(eventDal.createTable(), timeout)
 
     val event = Event("Nicolas Nameday", parseDateTime("2016-12-06T17:31:56+01:00"))
