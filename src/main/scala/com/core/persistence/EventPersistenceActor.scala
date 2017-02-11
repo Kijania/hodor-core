@@ -2,16 +2,12 @@ package com.core.persistence
 
 import akka.actor.{Actor, Props}
 import akka.pattern.pipe
+import com.core.dal.BaseDal
 import com.core.persistence.EventPersistenceActor._
-import com.core.dal.{BaseDal, BaseDalImpl}
-import com.core.utils.db.DatabaseConnectionImpl
 import com.core_api.dao.EventDao
 import com.core_api.dto.{Event, EventDto}
-import slick.lifted.TableQuery
 
-class EventPersistenceActor extends Actor with DatabaseConnectionImpl{
-
-  val dal: BaseDal[EventDao, EventDto] = new BaseDalImpl[EventDao, EventDto](TableQuery[EventDao])
+class EventPersistenceActor(dal: BaseDal[EventDao, EventDto]) extends Actor {
 
   implicit val executionContext = context.system.dispatcher
 
@@ -42,7 +38,7 @@ class EventPersistenceActor extends Actor with DatabaseConnectionImpl{
 
 object EventPersistenceActor {
 
-  def props(): Props = Props(classOf[EventPersistenceActor])
+  def props(dal: BaseDal[EventDao, EventDto]): Props = Props(classOf[EventPersistenceActor], dal)
 
   case object GetAllEvents
   case class GetEvent(id: Long)

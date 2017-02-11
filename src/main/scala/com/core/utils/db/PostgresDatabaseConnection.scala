@@ -8,7 +8,7 @@ trait DatabaseConnection {
   val driver: JdbcProfile
 }
 
-trait DatabaseConnectionImpl extends DatabaseConnection {
+class PostgresDatabaseConnection extends DatabaseConnection {
 
   // TODO encrypt admin user and password, introduce authentication
   private val dbConfig : DatabaseConfig[JdbcProfile] = DatabaseConfig.forConfig("db.postgres")
