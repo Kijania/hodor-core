@@ -1,8 +1,6 @@
 package com.core.persistence
 
 import akka.actor.{Actor, Props}
-// TODO replace with defined context
-import scala.concurrent.ExecutionContext.Implicits.global
 import akka.pattern.pipe
 import com.core.persistence.EventPersistenceActor._
 import com.core.dal.{BaseDal, BaseDalImpl}
@@ -14,6 +12,8 @@ import slick.lifted.TableQuery
 class EventPersistenceActor extends Actor with DatabaseConnectionImpl{
 
   val dal: BaseDal[EventDao, EventDto] = new BaseDalImpl[EventDao, EventDto](TableQuery[EventDao])
+
+  implicit val executionContext = context.system.dispatcher
 
   override def preStart(): Unit = {
     dal.createTable()

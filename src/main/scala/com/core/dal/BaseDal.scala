@@ -5,8 +5,7 @@ import com.core_api.dao.BaseDao
 import com.core_api.dto.BaseDto
 import slick.driver.JdbcProfile
 import slick.lifted.{CanBeQueryCondition, TableQuery}
-// TODO replace with defined context
-import scala.concurrent.ExecutionContext.Implicits.global
+import com.core.utils.ExecutionContexts.databaseExecutionContext
 
 import scala.concurrent.Future
 
