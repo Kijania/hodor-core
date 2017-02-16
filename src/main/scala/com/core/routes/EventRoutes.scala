@@ -3,6 +3,7 @@ package com.core.routes
 import javax.ws.rs.Path
 
 import akka.actor.ActorRef
+import akka.event.Logging
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.Directives._
@@ -40,30 +41,36 @@ case class EventRoutes(eventPersistenceActor: ActorRef) {
     new ApiResponse(code = 201, message = "Event created"),
     new ApiResponse(code = 500, message = "Invalid event or Internal Server Error")
   ))
-  def postEvent = path("events") {
-    post {
-      entity(as[Event]) { event =>
-        onComplete((eventPersistenceActor ? AddEvent(event)).mapTo[Long]) {
-          case Success(eventId) => complete(Created -> eventId.toString)
-          case Failure(ex) => complete(InternalServerError -> ex.getMessage)
+  def postEvent =
+    logRequestResult("EventRoutes", Logging.InfoLevel) {
+      path("events") {
+        post {
+          entity(as[Event]) { event =>
+            onComplete((eventPersistenceActor ? AddEvent(event)).mapTo[Long]) {
+              case Success(eventId) => complete(Created -> eventId.toString)
+              case Failure(ex) => complete(InternalServerError -> ex.getMessage)
+            }
+          }
         }
       }
     }
-  }
 
   @ApiOperation(value = "Return Events", httpMethod = "GET", produces = "application/json")
   @ApiResponses(Array(
     new ApiResponse(code = 200, message = "Ok", response = classOf[Seq[EventDto]]),
     new ApiResponse(code = 500, message = "Internal server error")
   ))
-  def getEvents = path("events") {
-    get {
-      onComplete((eventPersistenceActor ? GetAllEvents).mapTo[Seq[EventDto]]) {
-        case Success(events) => complete(OK -> events)
-        case Failure(ex) => complete(InternalServerError -> ex.getMessage)
+  def getEvents =
+    logRequestResult("EventRoutes", Logging.InfoLevel) {
+      path("events") {
+        get {
+          onComplete((eventPersistenceActor ? GetAllEvents).mapTo[Seq[EventDto]]) {
+            case Success(events) => complete(OK -> events)
+            case Failure(ex) => complete(InternalServerError -> ex.getMessage)
+          }
+        }
       }
     }
-  }
 
   @Path("/{id}")
   @ApiOperation(value = "Return Event", httpMethod = "GET", produces = "application/json")
@@ -76,19 +83,22 @@ case class EventRoutes(eventPersistenceActor: ActorRef) {
     new ApiResponse(code = 404, message = "The event not found"),
     new ApiResponse(code = 500, message = "Internal server error")
   ))
-  def getEvent = path("events" / LongNumber) { eventId =>
-    get {
-      validate(eventId > 0, "The event id must be greater than zero") {
-        onComplete((eventPersistenceActor ? GetEvent(eventId)).mapTo[Option[EventDto]]) {
-          case Success(eventDtoOption) => eventDtoOption match {
-            case Some(eventDto) => complete(OK -> eventDto)
-            case None => complete(NotFound -> "The event does not exist")
+  def getEvent =
+    logRequestResult("EventRoutes", Logging.InfoLevel) {
+      path("events" / LongNumber) { eventId =>
+        get {
+          validate(eventId > 0, "The event id must be greater than zero") {
+            onComplete((eventPersistenceActor ? GetEvent(eventId)).mapTo[Option[EventDto]]) {
+              case Success(eventDtoOption) => eventDtoOption match {
+                case Some(eventDto) => complete(OK -> eventDto)
+                case None => complete(NotFound -> "The event does not exist")
+              }
+              case Failure(ex) => complete(InternalServerError -> ex.getMessage)
+            }
           }
-          case Failure(ex) => complete(InternalServerError -> ex.getMessage)
         }
       }
     }
-  }
 
   @Path("/{id}")
   @ApiOperation(value = "Edit Event", httpMethod = "PUT", produces = "application/json")
@@ -103,23 +113,26 @@ case class EventRoutes(eventPersistenceActor: ActorRef) {
     new ApiResponse(code = 404, message = "The event not found"),
     new ApiResponse(code = 500, message = "Internal server error")
   ))
-  def putEvent = path("events" / LongNumber) { eventId =>
-    put {
-      validate(eventId > 0, "The event id must be greater than zero") {
-        entity(as[Event]) { event =>
-          onComplete((eventPersistenceActor ? EditEvent(event.dto(eventId))).mapTo[Option[EventDto]]) {
-            case Success(eventDtoOption) => eventDtoOption match {
-              case Some(theEventDto) =>
-                complete(OK -> theEventDto)
-              case None =>
-                complete(NotFound -> "The event meant to update does not exist")
+  def putEvent =
+    logRequestResult("EventRoutes", Logging.InfoLevel) {
+      path("events" / LongNumber) { eventId =>
+        put {
+          validate(eventId > 0, "The event id must be greater than zero") {
+            entity(as[Event]) { event =>
+              onComplete((eventPersistenceActor ? EditEvent(event.dto(eventId))).mapTo[Option[EventDto]]) {
+                case Success(eventDtoOption) => eventDtoOption match {
+                  case Some(theEventDto) =>
+                    complete(OK -> theEventDto)
+                  case None =>
+                    complete(NotFound -> "The event meant to update does not exist")
+                }
+                case Failure(ex) => complete(InternalServerError -> ex.getMessage)
+              }
             }
-            case Failure(ex) => complete(InternalServerError -> ex.getMessage)
           }
         }
       }
     }
-  }
 
   @Path("/{id}")
   @ApiOperation(value = "Delete Event", httpMethod = "DELETE", produces = "text/plain; charset=UTF-8")
@@ -132,19 +145,22 @@ case class EventRoutes(eventPersistenceActor: ActorRef) {
     new ApiResponse(code = 404, message = "Event not found"),
     new ApiResponse(code = 500, message = "Internal server error")
   ))
-  def deleteEvent() = path("events" / LongNumber) { eventId =>
-    delete {
-      validate(eventId > 0, "The event id must be greater than zero") {
-        onComplete((eventPersistenceActor ? DeleteEvent(eventId)).mapTo[Option[Long]]) {
-          case Success(id) => id match {
-            case Some(_) =>
-              complete(NoContent)
-            case None =>
-              complete(NotFound)
+  def deleteEvent() =
+    logRequestResult("EventRoutes", Logging.InfoLevel) {
+      path("events" / LongNumber) { eventId =>
+        delete {
+          validate(eventId > 0, "The event id must be greater than zero") {
+            onComplete((eventPersistenceActor ? DeleteEvent(eventId)).mapTo[Option[Long]]) {
+              case Success(id) => id match {
+                case Some(_) =>
+                  complete(NoContent)
+                case None =>
+                  complete(NotFound)
+              }
+              case Failure(ex) => complete(InternalServerError -> ex.getMessage)
+            }
           }
-          case Failure(ex) => complete(InternalServerError -> ex.getMessage)
         }
       }
     }
-  }
 }
